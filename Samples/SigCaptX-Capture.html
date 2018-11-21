@@ -1,0 +1,407 @@
+<!--
+/* ************************************************************************** */
+  SigCaptX-Capture.html
+   
+  Cross browser Signature Capture test
+
+  1. Demonstrates standard Signature Capture using SigCaptX with the DynamicCapture method call
+  
+  2. If B64 option selected demonstrates standard signature capture using SigCaptX and renderBitmap returning a base64 image string
+  
+  3. The SigText property can be used to save/restore a signature
+  
+  
+  Copyright (c) 2018 Wacom Co. Ltd. All rights reserved.
+  
+   v4.0
+   
+/* ************************************************************************** */
+-->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SigCaptX-Capture</title>
+    <script src="wgssSigCaptX.js"></script>
+    <script src="base64.js"></script>
+    <script src="SigCaptX-Utils.js"></script>
+    <script src="SigCaptX-SessionControl.js"></script>
+    <script type="text/javascript">
+   
+/* Define global variables */
+var wgssSignatureSDK = null;
+var sigObj = null;
+var sigCtl = null;
+var dynCapt = null;
+
+/* wizardEventController is the main event handler for the wizard script */
+var wizardEventController =
+{
+  body_onload : function()
+  {
+    clearTextBox();
+    actionWhenRestarted();
+  },
+  
+  start_stop : function()
+  {
+    if( scriptIsRunning ) 
+    {
+      wizardEventController.stop();
+    }
+    else
+    {
+      wizardStart(3);
+    }
+  },
+  
+  stop : function()
+  {
+    if( !scriptIsRunning ) 
+    {
+      print("Script not running");
+    }
+    else
+    {
+      stopScript();
+    }
+  },
+  
+  script_Completed : function()
+  {
+    print("Script completed");
+    showSignature();
+  },
+  
+  script_Cancelled : function()
+  {
+    print("Script cancelled");
+    wizardEventController.stop();
+  }
+}
+
+/*  This is the main function for capturing the signature from the pad */
+function capture()
+{
+  if(!wgssSignatureSDK.running || null == dynCapt)
+  {
+    print("Session error. Restarting the session.");
+    actionWhenRestarted(window.Capture);   // See SigCaptX-SessionControl.js
+    return;
+  }
+  dynCapt.Capture(sigCtl, "John Smith", "Document Approval", null, null, onDynCaptCapture);
+
+  function onDynCaptCapture(dynCaptV, SigObjV, status)
+  {
+    if(wgssSignatureSDK.ResponseStatus.INVALID_SESSION == status)
+    {
+      print("Error: invalid session. Restarting the session.");
+      actionWhenRestarted(window.Capture);  // See SigCaptX-SessionControl.js
+    }
+    else
+    {
+      /* Check the status returned from the signature capture */
+      switch( status ) 
+      {
+        case wgssSignatureSDK.DynamicCaptureResult.DynCaptOK:
+          sigObj = SigObjV;
+          print("Signature captured successfully");
+
+          /* Set the RenderBitmap flags as appropriate depending on whether the user wants to use a picture image or B64 text value */
+          if (document.getElementById("chkUseB64Image").checked)
+          {
+             var flags = wgssSignatureSDK.RBFlags.RenderOutputBase64 | wgssSignatureSDK.RBFlags.RenderColor32BPP;
+          } 
+          else
+          {
+             var flags = wgssSignatureSDK.RBFlags.RenderOutputPicture | wgssSignatureSDK.RBFlags.RenderColor32BPP;
+          }
+          sigObj.RenderBitmap("bmp", imageBox.clientWidth, imageBox.clientHeight, 0.7, 0x00000000, 0x00FFFFFF, flags, 4, 4, onRenderBitmap);
+          break;
+
+        case wgssSignatureSDK.DynamicCaptureResult.DynCaptCancel:
+          print("Signature capture cancelled");
+          break;
+          
+        case wgssSignatureSDK.DynamicCaptureResult.DynCaptPadError:
+          print("No capture service available");
+          break;
+          
+        case wgssSignatureSDK.DynamicCaptureResult.DynCaptError:
+          print("Tablet Error");
+          break;
+          
+        case wgssSignatureSDK.DynamicCaptureResult.DynCaptNotLicensed:
+          print("No valid Signature Capture licence found");
+          break;
+          
+        default: 
+          print("Capture Error " + status);
+          break;
+      }
+    }
+  }
+  
+  function onRenderBitmap(sigObjV, bmpObj, status) 
+  {
+    if(wgssSignatureSDK.ResponseStatus.OK == status) 
+    {
+      var imageBox = document.getElementById("imageBox");
+      var useB64Image = document.getElementById("chkUseB64Image").checked;
+
+      /* If the user wants to demonstrate the use of B64 image strings then define an image and set its source to the B64 string*/
+      if (useB64Image)
+      {
+         print("base64_image:>"+bmpObj+"<");
+         img = new Image();
+         img.src = "data:image/png;base64," + bmpObj;
+  
+         if(null == imageBox.firstChild)
+         {
+           imageBox.appendChild(img);
+         }
+         else
+         {
+            imageBox.replaceChild(img, imageBox.firstChild);
+         }
+      }
+      else
+      {
+         /* If RenderBitmap generated a standard image (picture) then just place that picture in the img control on the HTML form */
+         if(null == imageBox.firstChild)
+         {
+           imageBox.appendChild(bmpObj.image);
+         }
+         else
+         {
+            imageBox.replaceChild(bmpObj.image, imageBox.firstChild);
+         }
+      }
+      /* If the user chose the option to show the SigText value on the form then call the function to do this */
+      if (document.getElementById("chkShowSigText").checked)
+      {
+         sigObjV.GetSigText(onGetSigText);
+      }
+    } 
+    else 
+    {
+      print("Signature Render Bitmap error: " + status);
+    }
+  }
+  
+  /* This function takes the SigText value returned by the callback and places it in the txtSignature tag on the form */
+  function onGetSigText(sigObjV, text, status) 
+  {
+    if(wgssSignatureSDK.ResponseStatus.OK == status)
+    {
+      var txtSignature = document.getElementById("txtSignature");
+      txtSignature.value = text;
+    }
+    else 
+    {
+      print("Signature Render Bitmap error: " + status);
+    }
+  }
+}
+
+/* This function displays the details of the signature in the text box on the HTML form */
+
+function displaySignatureDetails(sigObj)
+{
+    if(!wgssSignatureSDK.running || null == sigObj)
+    {
+      print("Session error. Restarting the session." );
+      actionWhenRestarted(window.DisplaySignatureDetails);  // See SigCaptX-SessionControl.js
+      return;
+    }
+    sigObj.GetIsCaptured(onGetIsCaptured);
+  
+    function onGetIsCaptured(sigObj, isCaptured, status)
+    {
+      if(wgssSignatureSDK.ResponseStatus.OK == status) 
+      {
+        if(!isCaptured)
+        {
+          print("No signature has been captured yet." );
+          return;
+        }
+        sigObj.GetWho(onGetWho);
+      }
+      else 
+      {
+        print("Signature GetWho error: " + status);
+        if(wgssSignatureSDK.ResponseStatus.INVALID_SESSION == status)
+        {
+          print("Session error. Restarting the session.");
+          actionWhenRestarted(window.displaySignatureDetails);  // See SigCaptX-SessionControl.js
+        }
+      }
+    }
+
+    function onGetWho(sigObjV, who, status) 
+    {
+      if(wgssSignatureSDK.ResponseStatus.OK == status) 
+      {
+        print("  Name:   " + who);
+        var tz = wgssSignatureSDK.TimeZone.TimeLocal;
+        sigObj.GetWhen(tz, onGetWhen);
+      } 
+      else 
+      {
+        print("Signature GetWho error: " + status);
+      }
+    }
+  
+    function onGetWhen(sigObjV, when, status) 
+    {
+      if(wgssSignatureSDK.ResponseStatus.OK == status) 
+      {
+        print("  Date:   " + when.toString() );
+        sigObj.GetWhy(onGetWhy);
+      } 
+      else 
+      {
+        print("Signature GetWhen error: " + status);
+      }
+    }
+  
+    function onGetWhy(sigObjV, why, status) 
+    {
+      if(wgssSignatureSDK.ResponseStatus.OK == status) 
+      {
+        print("  Reason: " + why);
+      } 
+      else 
+      {
+        print("Signature GetWhy error: " + status);
+      }
+    }  
+}
+
+/* This function clears the current signature image from the signature control on the form */
+function clearSignature()
+{ 
+    var imageBox = document.getElementById("imageBox");
+    if(null != imageBox.firstChild)
+    {
+      imageBox.removeChild(imageBox.firstChild);
+    }
+    if (null == sigObj)
+    {
+      actionWhenRestarted(window.ClearSignature);  // See SigCaptX-SessionControl.js
+      return;
+    }
+    sigObj.Clear(onClearSig);
+  
+    function onClearSig(sigObjV, status)
+    {
+      if(wgssSignatureSDK.ResponseStatus.OK != status)
+      {
+        print("ClearSignature() error: " + status);
+        if(wgssSignatureSDK.ResponseStatus.INVALID_SESSION == status)
+        {
+          print("Session error. Restarting the session.");
+          actionWhenRestarted(window.ClearSignature);  // See SigCaptX-SessionControl.js
+        }
+      }
+    }
+}
+  
+/* This function takes the SigText value currently displayed on the HTML form and uses it to recreate the signature image shown in the signature control tag on the form */
+function setSignatureText()
+{
+    if(null == sigObj)
+    {
+      actionWhenRestarted(window.SetSignatureText);  // See SigCaptX-SessionControl.js
+      return;
+    }
+    /* First of all take the SigText value currently displayed in the txtSignature field on the form and assign it to the sigObj object */
+    var text = document.getElementById("txtSignature").value;
+    sigObj.PutSigText(text, onPutSigText);
+  
+    function onPutSigText(sigObjV, status)
+    {
+      if(wgssSignatureSDK.ResponseStatus.OK == status)
+      {
+        /* Now that the sigObj has been populated with the signature data (via the SigText) it can be used to geberate a signature image */
+        var flags = wgssSignatureSDK.RBFlags.RenderOutputPicture | wgssSignatureSDK.RBFlags.RenderColor24BPP;
+        var imageBox = document.getElementById("imageBox");
+        sigObj.RenderBitmap("bmp", imageBox.clientWidth, imageBox.clientHeight, 0.7, 0x00000000, 0x00FFFFFF, flags, 0, 0, onRenderBitmapFromSigText);
+      }
+      else
+      {
+        print("SetSignatureText() error: " + status); 
+        if(wgssSignatureSDK.ResponseStatus.INVALID_SESSION == status)
+        {
+          print("Session error. Restarting the session.");
+          actionWhenRestarted(window.SetSignatureText);  // See SigCaptX-SessionControl.js
+        }
+      }
+    }
+
+    /* Take the image generated by RenderBitmap and use it to populate the signature image control on the form */
+    function onRenderBitmapFromSigText(sigObjV, bmpObj, status) 
+    {
+      if(wgssSignatureSDK.ResponseStatus.OK == status) 
+      {
+        var imageBox = document.getElementById("imageBox");
+        if(null == imageBox.firstChild)
+        {
+          imageBox.appendChild(bmpObj.image);
+        }
+        else
+        {
+          imageBox.replaceChild(bmpObj.image, imageBox.firstChild);
+        }
+      } 
+      else 
+      {
+        print("Signature Render Bitmap error: " + status);
+      }
+    }
+}
+    </script>
+  </head>
+  <body onload="wizardEventController.body_onload()">
+    <div style="width:100%">
+      <h2>Test Signature Control</h2>
+      <table style="padding: 10px 90px;">
+        <tr>
+          <td rowspan="3">
+            <div id="imageBox" class="boxed" style="height:35mm;width:60mm; border:1px solid #d3d3d3;" ondblclick="displaySignatureDetails(sigObj)" title="Double-click a signature to display its details">
+            </div>
+          </td>
+          <td  style="padding: 10px 50px;">
+            <input type="button" value="Capture" style="height:10mm;width:35mm" onclick="capture()"
+            title="Starts signature capture" />
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 50px;">
+            <input type="button" value="Clear" style="height:10mm;width:35mm" onclick="clearSignature()"
+            title="Clears the signature" />
+          </td>
+          <td style="padding: 10px 50px;">
+            <input type="button" value="License Info" style="height:10mm;width:35mm" onclick="aboutBox(sigCtl)"
+            title="Displays the Help About box" />
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 10px 50px;">
+            <input type="button" value="Restore" style="height:10mm;width:35mm" onclick="setSignatureText()"
+            title="Restores the signature from the SigText data" />
+          </td>
+          <td style="padding: 10px 50px;">
+            <input type="button" value="Signature Details" style="height:10mm;width:35mm" onclick="displaySignatureDetails(sigObj)"
+            title="Displays the Help About box" />
+          </td>
+        </tr>
+      </table>
+      <h3>Options</h3>
+      <input type="checkbox" id="chkUseB64Image"/>Use base-64 signature image
+      <input type="checkbox" id="chkShowSigText"/>Output SigText to form <br/><br/>
+      <textarea cols="125" rows="15" id="txtDisplay"></textarea>
+      <br/>SigText:<br/>
+      <textarea cols="125" rows="15" id="txtSignature"></textarea>
+    </div>
+  </body>
+</html>
