@@ -1,8 +1,12 @@
 # SigCaptX Windows
 
-## Version 1.21.1
+## Version 1.21.2
 
 ## History
+
+* Release v1.21.2  25-Oct-2018
+    * Includes revised Signature SDK v4.0
+    * Fix for SigCaptX server startup in Edge
 
 * Release v1.21.1  26-Sept-2018
     * Includes revised Signature SDK v3.21 which enforces the use of a license
