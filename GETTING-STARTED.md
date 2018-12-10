@@ -3,9 +3,9 @@
 ## Test environment
 
 Samples are included for Windows 7 and above.
-The SigCaptX samples need both the Signature and SigCaptX SDKs to be installed.
+The SigCaptX samples need both the Signature and SigCaptX libraries to be installed.
 To test the samples use a Wacom device such as an STU-500 or a pen/tablet device such as a DTU-1141.
-To use a pen/tablet device its driver will need to be installed separately to include the wintab interface used by the Signature SDK.
+To use a pen/tablet device its driver will need to be installed separately to include the wintab interface used by the Signature Library.
 See the FAQs for device installation:
 https://developer-docs.wacom.com/display/DevDocs/WILL+SDK+-+FAQs
 
@@ -21,7 +21,7 @@ Download the SDK from https://developer.wacom.com/developer-dashboard
 * Accept the End User License Agreement to use the SDK
 
 The downloaded Zip file contains the SDK with documentation.
-The folders 'SignatureSDK' and 'SigCaptX' are included in the Zip file and contain the MSI and EXE installers.
+The folders 'SignatureSDK' and 'SigCaptX' are included in the Zip file and contain the MSI and EXE library installers.
 
 ## Download an evaluation license
 
@@ -38,7 +38,7 @@ A license is needed to use the Signature SDK and a fully functional evaluation l
 The license is supplied as a JWT text string in a text file. This will need to be copied into your application. The self-service evaluation licenses have a three-month expiry date from the time of creation. However you can generate a new license at any time. 
 
 
-## Install the SigCaptX SDK
+## Install the SigCaptX Library
 
 Make sure that any browsers using SigCaptX have already been installed and run so they can be located in the installation process.
 In addition note:
@@ -56,22 +56,22 @@ In addition note:
 * MSI log files are created in the folder %TEMP%
 
 
-SigCaptX is supplied as a 32-bit application and requires the 32-version of the Signature SDK, regardless of your Windows version.
+SigCaptX is supplied as a 32-bit application and requires the 32-version of the Signature Library, regardless of your Windows version.
 To simplify the installation a combined installer is included:
 **Wacom-SigCaptX-XX.exe**
 
-Run the installer with default options to install the components in:
+Run the installer with default options to install the library in:
 C:\Program Files (x86)\Common Files\WacomGSS
 
 ## HTML Samples
 
-Samples equivalent to the Signature SDK samples are included with the changes needed to use SigCaptX components.
+Samples equivalent to the Signature Library samples are included with the changes needed to use SigCaptX library.
 PortCheck.htm is included to check that the SigCaptX service is available, independently of signature capture.
 
 Having downloaded the samples you will need to install your Signature license in the code:
 
 Search and replace '<<license>>' with your evaluation license string.
-The samples can then be opened and run in any of the commonly used browsers: Internet Explorer/Firefox/Chrome.
+The samples can then be opened and run in any of the commonly used browsers: Internet Explorer/Edge/Firefox/Chrome.
 
 
 | Sample                        | Description                                                           |

@@ -4,32 +4,32 @@
 
 ---
 
-The WILL SDK for SigCaptX SDK is an extension of the WILL SDK for Signature.
-SigCaptX installs components which allow a signature enabled web application to be used in a range of browsers.
-Previously this was only possible using Internet Explorer with ActiveX technology.
+In the WILL SDK for Signature the SigCaptX Library is an extension of the Signature Library.
+The SigCaptX Library allows a signature enabled web application to be used in a range of browsers thereby giving cross-browser support.
+Previously a signature enabled web application could only be used in Internet Explorer using ActiveX technology.
 The product has been tested with Internet Explorer, MS Edge, Chrome and Firefox.
 
-A prerequisite is the installation of the Wacom Signature SDK, see: WILL SDK for Signature - Windows
-SigCaptX is supplied as a 32-bit application and requires the 32-version of the Signature SDK, regardless of your Windows version.
+A prerequisite is the installation of the Wacom Signature Library, see: WILL SDK for Signature - Windows
+SigCaptX is supplied as a 32-bit application and requires the 32-bit version of the Signature Library, regardless of your Windows version.
 To simplify the installation a combined installer is provided.
 
 
 ## Overview
 
-In a browser with no ActiveX support it is not possible to access the Signature SDK directly. Instead calls are made indirectly via a localhost web server which is installed as an extension of the Signature SDK. A JavaScript SDK framework is provided to give access to the local web server. The JSONP communication technique is used as the interface to the local web server using HTTPS requests.
+In a browser with no ActiveX support it is not possible to access the Signature Library directly. Instead calls are made indirectly via a localhost web server which is installed as part of the SigCaptX Library. The SigCaptX JavaScript library is provided to give access to the local web server. JSONP communication is used as the interface to the local web server using HTTPS requests.
  
 To view the solution schematically:
 
-![signature sigcaptx components](images/SigCaptXComponents.png)
+![signature sigcaptx components](images/SigCaptX-Library.png)
 
 The general process is as follows:
 
-*	The web browser loads an HTML page containing JavaScript application code from the web server. The application code includes the SDK framework required to access the localhost web server.
-*	To perform signature sdk functions, the application code calls the localhost server through the SDK framework. The framework functions each make a JSONP HTTPS request to the localhost server and supply a dedicated callback function. The framework functions return immediately, leaving the server to run independently.
-*	The server actions the framework function by calling the Signature SDK DLL. For example, in the case of signature capture the DLL performs the necessary i/o with the signature tablet.
-*	On completion the server uses the JSONP technique to start the callback function which was supplied in the request, passing the relevant return data.
+*	The web browser loads an HTML page containing JavaScript application code from the web server. The application code includes the SigCaptX JavaScript library required to access the localhost web server.
+*	To perform signature library functions, the application code calls the localhost server through the SigCaptX JavaScript library. The library functions each make a JSONP HTTPS request to the localhost SigCaptX server and supply a dedicated callback function. The library functions return immediately, leaving the server to run independently.
+*	The server actions the library function by calling the Signature Library. For example, in the case of signature capture the DLL performs the necessary i/o with the signature tablet.
+*	On completion the server uses JSONP to start the callback function which was supplied in the request, passing the relevant return data.
 *	The callback function retrieves the data and completes the operation.
-*	For example, in the case of signature capture the HTML application calls the signature capture framework function. Its callback function calls the renderBitmap framework function to request the image of the signature. Its callback function displays the signature image in the html page. 
+*	For example, in the case of signature capture the HTML application calls the signature capture library function. Its callback function calls the renderBitmap library function to request the image of the signature. Its callback function then displays the signature image in the html page. 
 
 To illustrate, an html page creates the signature image display area:
 
