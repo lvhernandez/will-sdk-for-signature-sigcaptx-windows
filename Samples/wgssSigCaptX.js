@@ -1,6 +1,6 @@
 ﻿//==============================================================================
 // wgssSigCaptX.js
-// Copyright (c) 2015 Wacom Co. Ltd
+// Copyright (c) 2015 Wacom Europe GmbH
 //
 // 01/04/2015  FRE Created
 //==============================================================================
@@ -334,6 +334,16 @@ function WacomGSS_SignatureSDK(_onDetectRunning, service_port)
     this.fUnderline = (typeof _underline == 'undefined')? 0: fUnderline;
     this.fStrikethrough = (typeof _strike == 'undefined')? 0: _strike;
   }
+
+  this.keepAlive = function()
+  {
+    var data = { 
+                   "session": sigsdkptr.session, 
+                   "KeepAlive": 1
+                 };
+    JSONreq.getJSON(server_url + "wacom.js", data, function (){});
+    setTimeout(sigsdkptr.keepAlive, 2000);
+  }
   
   function onGetSession(server_data) 
   {
@@ -342,6 +352,7 @@ function WacomGSS_SignatureSDK(_onDetectRunning, service_port)
       sigsdkptr.session = server_data.session
       sigsdkptr.running = true;
       _onDetectRunning();
+      setTimeout(sigsdkptr.keepAlive, 2000);
     } 
     else 
     {
@@ -365,6 +376,31 @@ function WacomGSS_SignatureSDK(_onDetectRunning, service_port)
       console.log("Signature SDK Service error: " + server_data.status);
     }
   }
+
+
+  function destroySession()
+  {
+    if (sigsdkptr.session != 0)
+    {
+      var u = server_url + "wacom.js" + "?DestroySession=1&session="+sigsdkptr.session;
+
+      sigsdkptr.session = 0;
+
+      if (self.Navigator.sendBeacon != undefined)
+      {
+        self.Navigator.sendBeacon(u);
+      }
+      else
+      {
+        var r = new XMLHttpRequest();
+        r.open("GET", u, false); // synchronous
+        r.send(null);
+      }
+      
+    }
+  }
+
+  window.addEventListener('unload', function(event) { destroySession(); });
 
   function checkService() 
   {

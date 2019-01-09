@@ -27,7 +27,9 @@ A sample webpage "demo.htm" is provided in the SigCaptX-Samples download file. I
 In order to simplify the use of this sample the web server is a localhost python process and the server SSL certificate used is the same one as the one used by SigCaptX.
 In a real world scenario the webpage server would be remote and it would need to use its own certificate.
 
-To run the sample, first you need to install Python 2.x on your machine and add Python to the windows PATH environment variable. Also, if you have modified the "start_port" value in the registry, you will need to modify the webpage demo/demo.htm. The example also uses the wgssSigCaptX.js and base64.js files. The web server needs to know that port number beforehand so that it can talk to the local SigCaptX background service of the user's machine. Specifically, you need to change this line of demo/demo.htm:
+To run the sample, first you need to install Python 2.x on your machine and add Python to the windows PATH environment variable. Also, if you have modified the "start_port" value in the registry, you will need to modify the webpage demo/demo.htm. 
+The example also uses the wgssSigCaptX.js and base64.js files. The web server needs to know that port number beforehand so that it can talk to the local SigCaptX background service of the user's machine. 
+Specifically, you need to change this line of demo/demo.htm:
 
 var wgssSignatureSDK = new WacomGSS_SignatureSDK(onDetectRunning, 8000)
 

@@ -65,23 +65,55 @@ C:\Program Files (x86)\Common Files\WacomGSS
 
 ## HTML Samples
 
-Samples equivalent to the Signature Library samples are included with the changes needed to use SigCaptX library.
+The samples demonstrate use of the SigCaptX library.
+
 PortCheck.htm is included to check that the SigCaptX service is available, independently of signature capture.
 
 Having downloaded the samples you will need to install your Signature license in the code:
 
 Search and replace '<<license>>' with your evaluation license string.
+For example change:
+```
+    const LICENCEKEY = "<<license>>";
+```    
+to:
+```
+    const LICENCEKEY = "AbAD.......wQ";
+```    
+
 The samples can then be opened and run in any of the commonly used browsers: Internet Explorer/Edge/Firefox/Chrome.
 
 
 | Sample                        | Description                                                           |
 | ----------------------------- | --------------------------------------------------------------------- |
 | PortCheck.htm                 | Use this sample to check that the SigCaptX service is available |
-| SigCaptX-Capture.html         | Demonstrates signature capture  |
-| SigCaptX-Capture-Hash.html    | Demonstrates signature capture with data hash  |
-| SigCaptX-Wizard.html          | Demonstrates use of the Wizard control. Uses a checkbox and captures a signature  |
-| SigCaptX-WizardPINPad.html    | Demonstrates the Wizard control pin pad input |
+| SigCaptX-Capture-html         | Signature capture showing use of base64 image, SigText and hash verification |
+| SigCaptX-Wizard.html          | Wizard sample showing use of check boxes, radio buttons, images for buttons, SigText generation, font sizes and colour (for STUs which support colour) |
+| SigCaptX-WizardPINPad.html    | Demonstrates full version of PIN pad input |
+| demo.htm                      | Basic sample illustrating use of dynamic capture, wizard capture and single digit PIN input |
 
+
+### Demo.htm
+
+The sample webpage "demo.htm" is included in the samples. In order to test this first copy it to the demo folder in C:\Program Files (x86)\Wacom SigCaptX. 
+To simplify the use of this sample the web server is a localhost python process and the server SSL certificate used is the same one as the one used by SigCaptX.
+In a real world scenario the webpage server would be remote and it would need to use its own certificate.
+
+To run the sample, first you need to install Python 2.x on your machine and add Python to the windows PATH environment variable. Also, if you have modified the "start_port" value in the registry, you will need to modify the webpage demo/demo.htm. 
+The example also uses the wgssSigCaptX.js and base64.js files. The web server needs to know the port number beforehand so that it can talk to the local SigCaptX background service of the user's machine. 
+Specifically, you need to change this line of demo/demo.htm:
+
+```
+var wgssSignatureSDK = new WacomGSS_SignatureSDK(onDetectRunning, 8000)
+```
+
+Change 8000 to the port that you have specified as "start_port" in the registry.
+
+Then execute demo/server.py:
+
+> python server.py
+
+Now you can load the webpage from a browser by visiting https://localhost:7999/demo.htm
 
 ----
 

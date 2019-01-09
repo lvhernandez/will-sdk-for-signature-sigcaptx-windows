@@ -31,12 +31,12 @@ function callbackStatusOK ( methodName, status )
 {
   if(wgssSignatureSDK.ResponseStatus.OK == status)
   {
-    return(true);
+    return true;
   }
   else
   {
     print(methodName + " error: " + status);
-    return(false);
+    return false;
   }
 } 
  
@@ -144,7 +144,7 @@ function displaySignatureDetails(sigObj)
  
 // Called when the wizard script is completed and displays the image of the captured signature in the
 // signature image on the HTML document. Optionally also displays the SigText string
-function showSignature(displaySigText)
+function showSignature()
 {
   print("Showing signature");
   sigCtl.GetSignature(onGetSignature);
@@ -153,10 +153,11 @@ function showSignature(displaySigText)
   {
     if(wgssSignatureSDK.ResponseStatus.OK == status)
     {
-      var flags = wgssSignatureSDK.RBFlags.RenderOutputPicture | wgssSignatureSDK.RBFlags.RenderColor24BPP;
+      var outputFlags = wgssSignatureSDK.RBFlags.RenderOutputPicture | wgssSignatureSDK.RBFlags.RenderColor24BPP;
       var imageBox = document.getElementById("imageBox");
       var sigObj = sigObjV;
-      sigObj.RenderBitmap("bmp", imageBox.clientWidth, imageBox.clientHeight, 0.7, 0x00000000, 0x00FFFFFF, flags, 0, 0, onRenderBitmap);
+      //print("Rendering bitmap");
+      sigObj.RenderBitmap(BITMAP_IMAGEFORMAT, imageBox.clientWidth, imageBox.clientHeight, BITMAP_INKWIDTH, BITMAP_INKCOLOR, BITMAP_BACKGROUNDCOLOR, outputFlags, BITMAP_PADDING_X, BITMAP_PADDING_Y, onRenderBitmap);
     }
     else
     {
@@ -179,7 +180,7 @@ function showSignature(displaySigText)
       }
       if (document.getElementById("chkSigText").checked)
       {
-        print("Outputting Sigtext");
+        //print("Outputting Sigtext");
         sigObjV.GetSigText(onGetSigText);
       }
       else
@@ -194,7 +195,7 @@ function showSignature(displaySigText)
   {
     if(callbackStatusOK("Signature Render Bitmap", status))
     {
-      print("Sig text successfully obtained: " + text);
+     print("Sig text successfully obtained: " + text);
   
      // At this point you can send the contents of "text" to the server 
      // and then validate it at the server end
@@ -208,13 +209,6 @@ function showSignature(displaySigText)
 // Set up the font ready for displaying the next object which could be text or a button or other object
 function setFont(fontName, fontSize, isBold, useSymbolCharset, callbackRoutine)
 {
-  /*
-  print("Setting font");
-  print("Name: " + fontName );
-  print("Size: " + fontSize );
-  print("Bold: " + isBold );
-  print("Charset: " + useSymbolCharset);
-  */
   var myFont = new wgssSignatureSDK.Font(fontName, fontSize);
   myFont.sWeight = (isBold? wgssSignatureSDK.FontWeight.FW_BOLD : wgssSignatureSDK.FontWeight.FW_NORMAL);
   if (useSymbolCharset)
@@ -234,7 +228,7 @@ function setFontForeColor(foreColor, callbackRoutine)
     // Default foreground colour to black if not supplied
     foreColor = "0R 0G 0B";
   }
-  print("Setting foreground colour to " + foreColor);
+  //print("Setting foreground colour to " + foreColor);
   color.Set (foreColor);
   wizCtl.SetProperty("ObjectForegroundColor", color, callbackRoutine);
 }
@@ -247,7 +241,7 @@ function setFontBackColor(backColor, callbackRoutine)
     // Default background colour to white if not supplied
     backColor = "1R 1G 1B";
   }
-  print("Setting background colour to " + backColor);
+  //print("Setting background colour to " + backColor);
   color.Set (backColor);
   wizCtl.SetProperty("ObjectBackgroundColor", color, callbackRoutine);
 }
@@ -279,6 +273,7 @@ function addButtonObject(buttonObj, callbackRoutine)
   yVar.Set(buttonObj.yPos);
   objData.Set(buttonObj.buttonText);
   options.Set(buttonObj.width);
+  
   //print("Adding button at " + buttonObj.xPos + " / " + buttonObj.yPos + ". Value: " + buttonObj.buttonText + " Type: " + buttonObj.buttonType);
   
   wizCtl.AddObject(wgssSignatureSDK.ObjectType.ObjectButton, buttonObj.buttonType, xVar, yVar, objData, options, callbackRoutine);
@@ -292,9 +287,9 @@ function addObjectImage(imageObj, callbackRoutine, imageSource)
   var objData = new wgssSignatureSDK.Variant();
   var options = new wgssSignatureSDK.Variant();
 
-  print("Placing button image at " + imageObj.xPos + " / " + imageObj.yPos + " using file " + imageObj.imageFile);
-  print("Image type is " + imageObj.buttonType);
-  print("Full path is " + imageObj.imageFile);
+  //print("Placing button image at " + imageObj.xPos + " / " + imageObj.yPos + " using file " + imageObj.imageFile);
+  //print("Image type is " + imageObj.buttonType);
+  //print("Full path for object image is " + imageObj.imageFile);
   
   xVar.Set(imageObj.xPos);
   yVar.Set(imageObj.yPos);
@@ -306,20 +301,20 @@ function addObjectImage(imageObj, callbackRoutine, imageSource)
 // Add a checkbox to the pad display using co-ordinates and options passed in as parameters
 function addCheckBox(xPosition, yPosition, optionsValue, callbackRoutine)
 {
-  print("Setting up check box dimensions");
+  //print("Setting up check box dimensions");
   var xVar = new wgssSignatureSDK.Variant();
   var yVar = new wgssSignatureSDK.Variant();
   var objData = new wgssSignatureSDK.Variant();
   var options = new wgssSignatureSDK.Variant();
     
-  print("Placing check box at " + xPosition + " / " + yPosition);
+  //print("Placing check box at " + xPosition + " / " + yPosition);
 
   xVar.Set(xPosition);
   yVar.Set(yPosition);
   objData.Set(" ");
   options.Set(optionsValue);
     
-  print("Putting check box object");
+  //print("Putting check box object");
   wizCtl.AddObject(wgssSignatureSDK.ObjectType.ObjectCheckbox, "Check", xVar, yVar, objData, options, callbackRoutine);
 }
 
@@ -433,5 +428,5 @@ function getCurrentDir()
   scriptFullName = scriptFullName.replace(/\//g,"\\"); //convert all '/' to '\'
   var scriptPath = scriptFullName.substring( 1, scriptFullName.lastIndexOf("\\")+1 ); // c:\pathname\  
   scriptPath = unescape(scriptPath); // change %20 back to space
-  return( scriptPath );
+  return scriptPath;
 }

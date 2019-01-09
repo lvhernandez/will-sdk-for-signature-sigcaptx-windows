@@ -1,8 +1,22 @@
-﻿<!DOCTYPE html>
+﻿<!--
+/* ************************************************************************** */
+  demo.htm
+   
+  Test program showing very basic examples of standard signature capture, wizard control capture and PIN capture
+  This is more or less unchanged from version 1 of the SigCaptX sample code and uses the original code design
+  
+  Copyright (c) 2018 Wacom Co. Ltd. All rights reserved.
+  
+   v4.0
+   
+/* ************************************************************************** */
+-->
+<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <script src="wgssSigCaptX.js"></script>
+<script src="SigCaptX-Globals.js"></script>
 <script src="base64.js"></script>
 
 <script type="text/javascript" id="myscript_1">
@@ -390,7 +404,7 @@ function wizPin()
     }
   }
   
-  function onWizCtlPutLicence(sigCtlV, status) 
+  function onWizCtlPutLicence(wizCtlG, status) 
   {
     if (wgssSignatureSDK.ResponseStatus.OK == status) 
     {
@@ -408,7 +422,7 @@ function wizPin()
     if(wgssSignatureSDK.ResponseStatus.OK == status)
     {
       document.getElementById("statusText").innerHTML += "<br>WizCtl created";
-      wizCtlG.PutLicence("AgAkAEy2cKydAQVXYWNvbQ1TaWduYXR1cmUgU0RLAgKBAgJkAACIAwEDZQA", onWizCtlPutLicence);
+      wizCtlG.PutLicence(LICENCEKEY, onWizCtlPutLicence);
     }
     else
     {
@@ -435,7 +449,7 @@ function wizPin()
     if(wgssSignatureSDK.ResponseStatus.OK == status)
     {
       document.getElementById("statusText").innerHTML += "<br>SigCtl created";
-      sigCtlG.PutLicence("<<license>>", onSigCtlPutLicence);
+      sigCtlG.PutLicence(LICENCEKEY, onSigCtlPutLicence);
     }
     else
     {
@@ -901,7 +915,7 @@ function wizCapture()
     if(wgssSignatureSDK.ResponseStatus.OK == status)
     {
       document.getElementById("statusText").innerHTML += "<br>WizCtl created";
-      wizCtlG.PutLicence("AgAkAEy2cKydAQVXYWNvbQ1TaWduYXR1cmUgU0RLAgKBAgJkAACIAwEDZQA", onWizCtlPutLicence);
+      wizCtlG.PutLicence(LICENCEKEY, onWizCtlPutLicence);
     }
     else
     {
@@ -926,7 +940,7 @@ function wizCapture()
     if(wgssSignatureSDK.ResponseStatus.OK == status)
     {
       document.getElementById("statusText").innerHTML += "<br>SigCtl created";
-      sigCtlG.PutLicence("AgAkAEy2cKydAQVXYWNvbQ1TaWduYXR1cmUgU0RLAgKBAgJkAACIAwEDZQA", onSigCtlPutLicence);
+      sigCtlG.PutLicence(LICENCEKEY, onSigCtlPutLicence);
     }
     else
     {
@@ -1066,7 +1080,7 @@ function captureSignature() {
   {
      if(wgssSignatureSDK.ResponseStatus.OK == status)
      {
-        sigCtlV.PutLicence("<<license>>", onSigCtlPutLicence);
+        sigCtlV.PutLicence(LICENCEKEY, onSigCtlPutLicence);
      }
      else
      {

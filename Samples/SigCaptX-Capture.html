@@ -10,7 +10,6 @@
   
   3. The SigText property can be used to save/restore a signature
   
-  
   Copyright (c) 2018 Wacom Co. Ltd. All rights reserved.
   
    v4.0
@@ -20,62 +19,27 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8">
     <title>SigCaptX-Capture</title>
     <script src="wgssSigCaptX.js"></script>
     <script src="base64.js"></script>
     <script src="SigCaptX-Utils.js"></script>
     <script src="SigCaptX-SessionControl.js"></script>
+    <script src="SigCaptX-Globals.js"></script>
     <script type="text/javascript">
-   
-/* Define global variables */
-var wgssSignatureSDK = null;
-var sigObj = null;
-var sigCtl = null;
-var dynCapt = null;
 
-/* wizardEventController is the main event handler for the wizard script */
-var wizardEventController =
+//  This function enables the Restore button if the user has selected the option to output SigText
+function enableRestoreButton()
 {
-  body_onload : function()
+  var btnRestore = document.getElementById("Restore");
+    
+  if (document.getElementById("chkShowSigText").checked)
   {
-    clearTextBox();
-    actionWhenRestarted();
-  },
-  
-  start_stop : function()
+    btnRestore.disabled = false;
+  }
+  else
   {
-    if( scriptIsRunning ) 
-    {
-      wizardEventController.stop();
-    }
-    else
-    {
-      wizardStart(3);
-    }
-  },
-  
-  stop : function()
-  {
-    if( !scriptIsRunning ) 
-    {
-      print("Script not running");
-    }
-    else
-    {
-      stopScript();
-    }
-  },
-  
-  script_Completed : function()
-  {
-    print("Script completed");
-    showSignature();
-  },
-  
-  script_Cancelled : function()
-  {
-    print("Script cancelled");
-    wizardEventController.stop();
+    btnRestore.disabled = true;
   }
 }
 
@@ -88,7 +52,36 @@ function capture()
     actionWhenRestarted(window.Capture);   // See SigCaptX-SessionControl.js
     return;
   }
-  dynCapt.Capture(sigCtl, "John Smith", "Document Approval", null, null, onDynCaptCapture);
+
+  // Construct a hash object to contain the hash
+  var hash = new wgssSignatureSDK.Hash(onHashConstructor);
+  
+  function onHashConstructor(hashV, status)
+  {
+    if(wgssSignatureSDK.ResponseStatus.OK == status)
+    {
+      GetHash(hash, onGetInitialHash);
+    }
+    else
+    {
+      print("Hash Constructor error: " + status);
+      if(wgssSignatureSDK.ResponseStatus.INVALID_SESSION == status)
+      {
+        print("Error: invalid session. Restarting the session.");
+        actionWhenRestarted(window.Capture);
+      }
+    }
+  }
+  
+  // If the hash value has been calculated successfully next steps is to capture the signature
+  function onGetInitialHash()
+  {
+    var firstName = document.getElementById("fname").value;
+    var lastName = document.getElementById("lname").value;
+    var fullName = firstName + " " + lastName;
+    
+    dynCapt.Capture(sigCtl, fullName, "Document Approval", hash, null, onDynCaptCapture);
+  }
 
   function onDynCaptCapture(dynCaptV, SigObjV, status)
   {
@@ -109,13 +102,13 @@ function capture()
           /* Set the RenderBitmap flags as appropriate depending on whether the user wants to use a picture image or B64 text value */
           if (document.getElementById("chkUseB64Image").checked)
           {
-             var flags = wgssSignatureSDK.RBFlags.RenderOutputBase64 | wgssSignatureSDK.RBFlags.RenderColor32BPP;
+             var outputFlags = wgssSignatureSDK.RBFlags.RenderOutputBase64 | wgssSignatureSDK.RBFlags.RenderColor32BPP;
           } 
           else
           {
-             var flags = wgssSignatureSDK.RBFlags.RenderOutputPicture | wgssSignatureSDK.RBFlags.RenderColor32BPP;
+             var outputFlags = wgssSignatureSDK.RBFlags.RenderOutputPicture | wgssSignatureSDK.RBFlags.RenderColor32BPP;
           }
-          sigObj.RenderBitmap("bmp", imageBox.clientWidth, imageBox.clientHeight, 0.7, 0x00000000, 0x00FFFFFF, flags, 4, 4, onRenderBitmap);
+          sigObj.RenderBitmap(BITMAP_IMAGEFORMAT, imageBox.clientWidth, imageBox.clientHeight, BITMAP_INKWIDTH, BITMAP_INKCOLOR, BITMAP_BACKGROUNDCOLOR, outputFlags, BITMAP_PADDING_X, BITMAP_PADDING_Y, onRenderBitmap);
           break;
 
         case wgssSignatureSDK.DynamicCaptureResult.DynCaptCancel:
@@ -277,6 +270,133 @@ function displaySignatureDetails(sigObj)
     }  
 }
 
+// This function calculates a hash value using the first and last names on the HTML form
+function GetHash(hash, callback)
+{
+  print("Creating hash:");
+  hash.Clear(onClear);
+  
+  function onClear(hashV, status)
+  {
+    if(wgssSignatureSDK.ResponseStatus.OK == status) 
+    {
+      hash.PutType(wgssSignatureSDK.HashType.HashMD5, onPutType);
+    } 
+    else 
+    {
+      print("Hash Clear error: " + status);
+    }
+  }
+  
+  function onPutType(hashV, status)
+  {
+    if(wgssSignatureSDK.ResponseStatus.OK == status) 
+    {
+      var vFname = new wgssSignatureSDK.Variant();
+      vFname.Set(document.getElementById("fname").value);
+      hash.Add(vFname, onAddFname);
+    } 
+    else 
+    {
+      print("Hash PutType error: " + status);
+    }
+  }
+  
+  function onAddFname(hashV, status)
+  {
+    if(wgssSignatureSDK.ResponseStatus.OK == status) 
+    {
+      var vLname = new wgssSignatureSDK.Variant();
+      vLname.Set(document.getElementById("lname").value);
+      hash.Add(vLname, onAddLname);
+    } 
+    else 
+    {
+      print("Hash Add error: " + status);
+    }
+  }
+  
+  function onAddLname(hashV, status)
+  {
+    if(wgssSignatureSDK.ResponseStatus.OK == status) 
+    {
+      callback();
+    } 
+    else 
+    {
+      print("Hash Add error: " + status);
+    }
+  }
+}
+
+// This function recalculates the hash value from the first and last names
+// and checks it against the hash embedded in the signature object
+function verifySignedData()
+{
+  print("Verifying signed data...");
+  if(null == sigObj)
+  {
+    actionWhenRestarted(window.VerifySig);
+    return;
+  }
+  var hash = null;
+  sigObj.GetIsCaptured(onGetIsCaptured);
+  
+  function onGetIsCaptured(sigObjV, isCaptured, status)
+  {
+    if(wgssSignatureSDK.ResponseStatus.OK == status)
+    {
+      if(isCaptured)
+      {
+        hash = new wgssSignatureSDK.Hash(onHashConstructor);
+      }
+      else
+      {
+        print("Signature not captured");
+      }
+    }
+    else
+    {
+      print("GetIsCaptured error: " + status);
+      if(wgssSignatureSDK.ResponseStatus.INVALID_SESSION == status)
+      {
+        print("Error: invalid session. Restarting the session.");
+        actionWhenRestarted(window.VerifySig);
+      }
+    }
+  }  
+  
+  function onHashConstructor(hashV, status)
+  {
+    if(wgssSignatureSDK.ResponseStatus.OK == status)
+    {
+      GetHash(hash, onGetHashForVerification);
+    }
+    else
+    {
+      print("Hash Constructor error: " + status);
+    }
+  }
+  
+  function onGetHashForVerification()
+  {
+    sigObj.CheckSignedData(hash, onCheckSignedData);
+  }
+  
+  function onCheckSignedData(hash, status)
+  {
+    print("Verify result: " + status);
+    if(wgssSignatureSDK.SignedData.DataGood == status)
+    {
+      print("Signed Data OK");
+    }
+    else
+    {
+      print("Signed Data Has Changed");
+    }
+  }
+}
+
 /* This function clears the current signature image from the signature control on the form */
 function clearSignature()
 { 
@@ -323,9 +443,10 @@ function setSignatureText()
       if(wgssSignatureSDK.ResponseStatus.OK == status)
       {
         /* Now that the sigObj has been populated with the signature data (via the SigText) it can be used to geberate a signature image */
-        var flags = wgssSignatureSDK.RBFlags.RenderOutputPicture | wgssSignatureSDK.RBFlags.RenderColor24BPP;
+        var outputFlags = wgssSignatureSDK.RBFlags.RenderOutputPicture | wgssSignatureSDK.RBFlags.RenderColor24BPP;
         var imageBox = document.getElementById("imageBox");
-        sigObj.RenderBitmap("bmp", imageBox.clientWidth, imageBox.clientHeight, 0.7, 0x00000000, 0x00FFFFFF, flags, 0, 0, onRenderBitmapFromSigText);
+        
+        sigObj.RenderBitmap(BITMAP_IMAGEFORMAT, imageBox.clientWidth, imageBox.clientHeight, BITMAP_INKWIDTH, BITMAP_INKCOLOR, BITMAP_BACKGROUNDCOLOR, outputFlags, BITMAP_PADDING_X, BITMAP_PADDING_Y, onRenderBitmapFromSigText);
       }
       else
       {
@@ -364,41 +485,58 @@ function setSignatureText()
   <body onload="wizardEventController.body_onload()">
     <div style="width:100%">
       <h2>Test Signature Control</h2>
-      <table style="padding: 10px 90px;">
+      <table style="padding: 10px 20px;">
         <tr>
           <td rowspan="3">
             <div id="imageBox" class="boxed" style="height:35mm;width:60mm; border:1px solid #d3d3d3;" ondblclick="displaySignatureDetails(sigObj)" title="Double-click a signature to display its details">
             </div>
           </td>
-          <td  style="padding: 10px 50px;">
+          <td  style="padding: 10px 20px;">
             <input type="button" value="Capture" style="height:10mm;width:35mm" onclick="capture()"
             title="Starts signature capture" />
           </td>
+          <td style="padding: 10px 20px;">
+            <input type="button" value="Verify" style="height:10mm;width:35mm" onclick="verifySignedData()"
+            title="Checks the signature hash" />
+          </td>
         </tr>
         <tr>
-          <td style="padding: 10px 50px;">
+          <td style="padding: 10px 20px;">
             <input type="button" value="Clear" style="height:10mm;width:35mm" onclick="clearSignature()"
             title="Clears the signature" />
           </td>
-          <td style="padding: 10px 50px;">
+          <td style="padding: 10px 20px;">
             <input type="button" value="License Info" style="height:10mm;width:35mm" onclick="aboutBox(sigCtl)"
             title="Displays the Help About box" />
           </td>
         </tr>
         <tr>
-          <td style="padding: 10px 50px;">
-            <input type="button" value="Restore" style="height:10mm;width:35mm" onclick="setSignatureText()"
-            title="Restores the signature from the SigText data" />
+          <td style="padding: 10px 20px;">
+            <input type="button" id="Restore" value="Restore" disabled style="height:10mm;width:35mm" onclick="setSignatureText()"
+            title="Restores the signature from the SigText data. To use this function please tick <Output SigText to form>" />
           </td>
-          <td style="padding: 10px 50px;">
+          <td style="padding: 10px 20px;">
             <input type="button" value="Signature Details" style="height:10mm;width:35mm" onclick="displaySignatureDetails(sigObj)"
             title="Displays the Help About box" />
           </td>
         </tr>
       </table>
+      <table style="padding: 10px 20px;">
+        <tr>
+        <td>Data included in the hash:</td>
+        </tr>
+        <tr>
+          <td>
+          First name: <input type="text" id="fname" value="John"/>
+          </td>
+          <td>
+          Last name: <input type="text" id="lname" value="Smith"/>
+          </td>
+        </tr>
+      </table>
       <h3>Options</h3>
       <input type="checkbox" id="chkUseB64Image"/>Use base-64 signature image
-      <input type="checkbox" id="chkShowSigText"/>Output SigText to form <br/><br/>
+      <input type="checkbox" id="chkShowSigText" onclick="enableRestoreButton()"/>Output SigText to form <br/><br/>
       <textarea cols="125" rows="15" id="txtDisplay"></textarea>
       <br/>SigText:<br/>
       <textarea cols="125" rows="15" id="txtSignature"></textarea>

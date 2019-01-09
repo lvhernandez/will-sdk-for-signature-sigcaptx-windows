@@ -11,34 +11,9 @@
   
 ***************************************************************************/
 
-var padRange = 
-{
-   STU300: "300",
-   STU430: "430",
-   STU500: "500",
-   STU5X0: "5X0"
-};
-
-var padType =
-{
-   STU300: "Wacom STU-300",
-   STU430: "Wacom STU-430",
-   STU500: "Wacom STU-500",
-   STU5X0: "Wacom STU-520, 530, 540 or 541"
-};
-
-var padColors =
-{
-   BLUE:  "0R 0G 0.8B",
-   GREEN:  "0R 0.8G 0B",
-   BLACK: "0R 0G 0B",
-   WHITE: "1R 1G 1B",
-   PURPLE: "0.7R 0.3G 1B"
-}
-
 function CPad_STU(padWidth, padHeight)
 {
-  print ("Defining pad for width/height : " + padWidth + "/" + padHeight);
+  //print ("Defining pad for width/height : " + padWidth + "/" + padHeight);
   this.Font = "Verdana";
   this.Height = padHeight;
   this.TitleBold = true;
@@ -130,14 +105,10 @@ function screen_Display1(pad)
   else
   {
     this.yInputEcho = pad.yText + 4*pad.yLSText;
-    print("yInputEcho : " + this.yInputEcho);
-    print("Calculating xPos from width " + pad.Width + " and keywidth " + this.KeyWidth);
-   
     this.xButtonCol1 = pad.Width/2 - this.KeyWidth/2 - 2*this.KeyWidth;
     this.xButtonCol2 = pad.Width/2 - this.KeyWidth/2;
     this.xButtonCol3 = pad.Width/2 - this.KeyWidth/2 + 2*this.KeyWidth;
 
-    print("Calculating yPos from yText " + pad.yText + " and yLSText " + pad.yLSText);
     this.yButtonRow1 = pad.yText + 7*pad.yLSText;
     this.yButtonRow2 = pad.yText + 7*pad.yLSText + this.KeyWidth;
     this.yButtonRow3 = pad.yText + 7*pad.yLSText + (2*this.KeyWidth);
@@ -246,7 +217,7 @@ function screen_Display1(pad)
   this.nextButton.buttonSize = pad.ButtonSize;
   this.nextButton.width = pad.ButtonWidth;
   this.nextButton.buttonBold = pad.TitleBold;
-  this.nextButton.buttonType = "OK";
+  this.nextButton.buttonType = buttonEvent.OK;
   this.nextButton.buttonText = "Confirm";
   this.nextButton.fontForeColor = padColors.WHITE;
   this.nextButton.fontBackColor = padColors.PURPLE;
@@ -257,9 +228,9 @@ function screen_Display1(pad)
   this.cancelButton.buttonSize = pad.ButtonSize;
   this.cancelButton.width = pad.ButtonWidth;
   this.cancelButton.buttonBold = pad.TitleBold;
-  this.cancelButton.buttonType = "Cancel";
+  this.cancelButton.buttonType = buttonEvent.CANCEL;
   this.cancelButton.buttonText = "Cancel";
   this.cancelButton.fontForeColor = padColors.WHITE;
   this.cancelButton.fontBackColor = padColors.PURPLE;
-  print("fontForeColor of Cancel button is " + this.cancelButton.fontForeColor);
+  //print("fontForeColor of Cancel button is " + this.cancelButton.fontForeColor);
 }

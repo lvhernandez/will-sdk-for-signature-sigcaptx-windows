@@ -14,17 +14,15 @@ function step1()
 {
   wizCtl.Reset(step1_onWizCtlReset);
   
-  print("At start of step1() Cancel Button fore color is " + display_1.cancelButton.fontForeColor);
+  //print("At start of step1() Cancel Button fore color is " + display_1.cancelButton.fontForeColor);
   function step1_onWizCtlReset(wizCtlV, status)
   {
-    print("Setting title font");
     if(wgssSignatureSDK.ResponseStatus.OK == status)
     {
       setFont(display_1.enterBelow.fontName, display_1.enterBelow.fontSize, display_1.enterBelow.fontBold, false, onPutFontEnterBelow);
     }
     else
     {
-      print("WizCtl Reset" + status);
       if(wgssSignatureSDK.ResponseStatus.INVALID_SESSION == status)
       {
         actionWhenRestarted(window.step1);
@@ -75,12 +73,10 @@ function step1()
       // If font colour is required do it now
       if (display_1.pin1.fontForeColor != null && display_1.pin1.fontForeColor != "")
       {
-        print("Setting font colours for PIN 1");
         setFontForeColor(display_1.pin1.fontForeColor, step1_onSetFontForeColorPin1);
       }
       else
       {
-        print("Displaying PIN 1 in existing font colours");
         addButtonObject(display_1.pin1, step1_onAddPin1Button);
       }
     }
@@ -100,7 +96,6 @@ function step1()
     if(callbackStatusOK("WizCtl SetFontBackColorPin1", status))
     {
       // After setting up the font colours set up the text string itself
-      print ("Now adding the PIN 1 text object");
       addButtonObject(display_1.pin1, step1_onAddPin1Button);
     }
   }
@@ -182,7 +177,7 @@ function step1()
   {
     if (callbackStatusOK("InputObj constructor", status))
     {
-      inputObj.PutMinLength(1, onInputObjMinLen);
+      inputObj.PutMinLength(PIN_MINLENGTH, onInputObjMinLen);
     }
   }
 
@@ -191,7 +186,7 @@ function step1()
   {
     if (callbackStatusOK("InputObj PutMinLength", status))
     {
-      inputObj.PutMaxLength(4, onInputObjMaxLen);
+      inputObj.PutMaxLength(PIN_MAXLENGTH, onInputObjMaxLen);
     }   
   }
   
@@ -208,8 +203,7 @@ function step1()
   {
     if (callbackStatusOK("WizCtl addInputObj", status))
     {
-      print("yInputEcho : " + display_1.yInputEcho);
-      addInputObjectEcho("centre", display_1.yInputEcho, onAddObjectInputEcho)
+      addInputObjectEcho("centre", display_1.yInputEcho, onAddObjectInputEcho);
     }
   }
   
@@ -294,14 +288,14 @@ function step1_Handler(ctl, id, type, status)
             break;
         }
         break;
-    case "Clear":   
+    case buttonEvent.CLEAR:   
       break; // handled by the InputObj control
-    case "OK":
+    case buttonEvent.OK:
       inputObj.GetText(onInputObjGetText);
       break;
-    case "Cancel":
+    case buttonEvent.CANCEL:
       print("Cancel");
-      wizardEventController.script_Completed();
+      wizardEventController.script_Completed(true);
       break;
     default:
       print( "Exception: step1_Handler(): " + "unexpected event: " + id);
@@ -321,7 +315,7 @@ function onInputObjGetText(inputObjV, text, status)
   if(wgssSignatureSDK.ResponseStatus.OK == status) 
   {
     print("Code entered: " + text);
-    wizardEventController.script_Completed();
+    wizardEventController.script_Completed(true);
   }
   else
   {

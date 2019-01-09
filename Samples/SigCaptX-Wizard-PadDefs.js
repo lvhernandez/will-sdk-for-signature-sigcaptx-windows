@@ -11,35 +11,13 @@
   
 ***************************************************************************/
 
-var padRange = 
-{
-   STU300: "300",
-   STU430: "430",
-   STU500: "500",
-   STU5X0: "5X0"
-};
 
-var padType = 
-{
-   STU300: "Wacom STU-300",
-   STU430: "Wacom STU-430",
-   STU500: "Wacom STU-500",
-   STU5X0: "Wacom STU-520, 530, 540 or 541"
-};
-
-var padColors =
-{
-   BLUE:  "0R 0G 0.8B",
-   GREEN:  "0R 0.8G 0B",
-   BLACK: "0R 0G 0B",
-   WHITE: "1R 1G 1B",
-   PURPLE: "0.7R 0.3G 1B",
-   RED: "0.6R 0G 0.2B"
-}
+// This function sets up the main properties to be used for the display depending on which
+// STU has been detected.
 
 function CPad_STU(padWidth, padHeight, checkBoxSize)
 {
-  print ("Defining pad for width/height : " + padWidth + "/" + padHeight);
+  //print ("Defining pad for width/height : " + padWidth + "/" + padHeight);
   this.Font = "Verdana";
   this.Height = padHeight;
   this.TitleBold = true;
@@ -52,13 +30,13 @@ function CPad_STU(padWidth, padHeight, checkBoxSize)
     case 640: 
       this.Range = padRange.STU500;
       this.Type = padType.STU500;
-      if (checkBoxSize == 'LARGE')
+      if (checkBoxSize == checkSizeSelection.LARGE)
       {
-        this.CheckSize = 40;
+        this.CheckSize = checkSize.STU500_Large;
       }
       else
       {
-        this.CheckSize = 22;
+        this.CheckSize = checkSize.STU500_Small;
       }
       this.ButtonBold = false;
       this.ButtonSize = 22;
@@ -76,13 +54,13 @@ function CPad_STU(padWidth, padHeight, checkBoxSize)
     case 800:
       this.Range = padRange.STU5X0;
       this.Type = padType.STU5X0;
-      if (checkBoxSize == 'LARGE')
+      if (checkBoxSize == checkSizeSelection.LARGE)
       {
-        this.CheckSize = 40;
+        this.CheckSize = checkSize.STU5X0_Large;
       }
       else
       {
-        this.CheckSize = 22;
+        this.CheckSize = checkSize.STU5X0_Small;
       }
       this.ButtonBold = false;
       this.ButtonSize = 22;
@@ -101,13 +79,13 @@ function CPad_STU(padWidth, padHeight, checkBoxSize)
     case 396:
       this.Range = padRange.STU300;
       this.Type = padType.STU300;
-      if (checkBoxSize == 'LARGE')
+      if (checkBoxSize == checkSizeSelection.LARGE)
       {
-        this.CheckSize = 20;
+        this.CheckSize = checkSize.STU300_Large;
       }
       else
       {
-        this.CheckSize = 12;
+        this.CheckSize = checkSize.STU300_Small;
       }
       this.ButtonBold = true;
       this.ButtonSize = 8;
@@ -126,13 +104,13 @@ function CPad_STU(padWidth, padHeight, checkBoxSize)
     case 320:
       this.Range = padRange.STU430;
       this.Type = padType.STU430;
-      if (checkBoxSize == 'LARGE')
+      if (checkBoxSize == checkSizeSelection.LARGE)
       {
-        this.CheckSize = 30;
+        this.CheckSize = checkSize.STU430_Large;
       }
       else
       {
-        this.CheckSize = 12;
+        this.CheckSize = checkSize.STU430_Small;
       }
       this.ButtonBold = true;
       this.ButtonSize = 12;
@@ -148,18 +126,17 @@ function CPad_STU(padWidth, padHeight, checkBoxSize)
       this.yTitle = 3;
       break;
   }
-  print ("Pad defined for " + this.Range);
 }
 
+// This function sets up the object definitions for the first screen in the wizard sequence
 function screen_Display1(pad, buttonTextSource)
-{
-  print("Defining screen1 for pad : " + pad.Range);
-  
+{ 
   // Object 1 - set up the "Step 1 of 3" text box
   this.stepMsg1 = new textObject();
   this.stepMsg1.xPos = "right";
   this.stepMsg1.yPos = 2;
   this.stepMsg1.textString = "Step 1 of 3";
+  this.stepMsg1.fontName = pad.Font;
   this.stepMsg1.fontBold = true;
   this.stepMsg1.fontSize = pad.TextSize;
   this.stepMsg1.type = "txt";
@@ -167,6 +144,7 @@ function screen_Display1(pad, buttonTextSource)
   // Object 2 - set up the "Check boxes provide options...." text message
   this.infoText = new textObject();
   this.infoText.textString = "Check boxes provide options for the signing process and can be transferred to the document";
+  this.infoText.fontName = pad.Font;
   this.infoText.fontBold = pad.TextBold;
   this.infoText.fontSize = pad.TextSize;  
   this.infoText.fontForeColor = "";
@@ -181,6 +159,11 @@ function screen_Display1(pad, buttonTextSource)
     case padRange.STU430:
       this.infoText.xPos = 10;
       this.infoText.yPos = 40;
+      // If using large check box the text message must be moved up
+      if (pad.CheckSize == checkSize.STU430_Large)
+      {
+        this.infoText.yPos = 32;
+      }
       break;
     case padRange.STU500:
       this.infoText.xPos = 30;
@@ -193,20 +176,19 @@ function screen_Display1(pad, buttonTextSource)
       this.infoText.fontBackColor = padColors.WHITE;
       break;
   }
-  print ("Foreground colour for info text: " + this.infoText.fontForeColor);
   
   // Set up the details for the check box object
   this.checkboxObj = new checkboxObject();
   
   // If we are setting up the STU 300 definitions for the large checkbox sample then we need to adjust the position
   // of the check box otherwise the screen gets too crowded
-  if (pad.Range == padRange.STU300 && pad.CheckSize == 20)
+  if (pad.Range == padRange.STU300 && pad.CheckSize == checkSize.STU300_Large)
   {
-    this.checkboxObj.xPos = pad.Width/4
-    this.checkboxObj.yPos = pad.Height/3;
+    this.checkboxObj.xPos = pad.Width / 4;
+    this.checkboxObj.yPos = 44;
   }
   else
-  if (pad.Range == padRange.STU430 && pad.CheckSize == 30)
+  if (pad.Range == padRange.STU430 && pad.CheckSize == checkSize.STU430_Large)
   {
     this.checkboxObj.xPos = pad.Width/8;
     this.checkboxObj.yPos = pad.Height/2 - 25;
@@ -224,13 +206,13 @@ function screen_Display1(pad, buttonTextSource)
   this.signingText = new textObject();
   // If we are setting up the STU 300 definitions for the large checkbox sample then we need to adjust the position
   // of the "I am signing..." text to prevent overlapping
-  if (pad.Range == padRange.STU300 && pad.CheckSize == 20)
+  if (pad.Range == padRange.STU300 && pad.CheckSize == checkSize.STU300_Large)
   {
      this.signingText.xPos = this.checkboxObj.xPos + 2 * pad.CheckSize;
-     this.signingText.yPos = pad.Height/3 + pad.CheckSize - pad.TextSize;
+     this.signingText.yPos = 44 + pad.CheckSize - pad.TextSize;
   }
   else
-  if (pad.Range == padRange.STU430 && pad.CheckSize == 30)
+  if (pad.Range == padRange.STU430 && pad.CheckSize == checkSize.STU430_Large)
   {
      this.signingText.xPos = this.checkboxObj.xPos + 2 * pad.CheckSize;
      this.signingText.yPos = this.checkboxObj.yPos + pad.CheckSize - pad.TextSize;
@@ -243,15 +225,25 @@ function screen_Display1(pad, buttonTextSource)
   this.signingText.textString = "I am signing as a representative";
   this.signingText.fontSize = pad.TextSize;
   this.signingText.fontName = pad.Font;
-  this.signingText.fontForeColor = padColors.GREEN;
-  this.signingText.fontBackColor = padColors.WHITE;
+  
+  if (pad.Range == padRange.STU5X0)
+  {
+    this.signingText.fontForeColor = padColors.GREEN;
+    this.signingText.fontBackColor = padColors.WHITE;
+  }
+  else
+  {
+    this.signingText.fontForeColor = "";
+    this.signingText.fontBackColor = "";
+  }
   
   // Set up the "When you are ready" text object. Done in separate function because also used later for screen 2
   this.nextToContinue = setupContinueText(pad, buttonTextSource);
   
   // Set up the Next and Cancel button objects using separate functions so they can be reused for screen2 and 3
   this.nextButton = setupNextButton(pad, buttonTextSource);
-  this.cancelButton = setupCancelButton(pad, buttonTextSource, "PREVIOUS");  
+  //print("Setting up previous button for screen 1");
+  this.cancelButton = setupCancelButton(pad, buttonTextSource, buttonFunction.PREVIOUS);  
 
   // Set up the rectangle or line object used to improve the screen aesthetics  
   if (pad.Range == padRange.STU300)
@@ -266,7 +258,7 @@ function screen_Display1(pad, buttonTextSource)
   }
   else
   {
-    print("Defining step1Rectangle for pad " + pad.Range);
+    //print("Defining step1Rectangle for pad " + pad.Range);
     this.step1Rectangle = new rectangleObject();
     this.step1Rectangle.x1Pos = "left";
     this.step1Rectangle.y1Pos = pad.Height/8;
@@ -277,6 +269,7 @@ function screen_Display1(pad, buttonTextSource)
   }
 }
 
+// This function sets up the object definitions for the second screen in the wizard sequence
 function screen_Display2(pad, buttonTextSource)
 {
   // Set up the "Step 2 of 3" text message object
@@ -284,8 +277,11 @@ function screen_Display2(pad, buttonTextSource)
   this.stepMsg2.xPos = "right";
   this.stepMsg2.yPos = 2;
   this.stepMsg2.textString = "Step 2 of 3";
+  this.stepMsg2.fontName = pad.Font;
   this.stepMsg2.fontBold = true;
   this.stepMsg2.fontSize = pad.TextSize;
+  this.stepMsg2.fontForeColor = "";
+  this.stepMsg2.fontBackColor = "";
   this.stepMsg2.type = "txt";
 
   // Set up the informational text object
@@ -293,8 +289,17 @@ function screen_Display2(pad, buttonTextSource)
   this.infoObject.textString = "Radio buttons provide options for the signing process and can be transferred to the document";
   this.infoObject.fontName = "Verdana";
   this.infoObject.type = "txt";
-  this.infoObject.fontForeColor = padColors.BLUE;
-  this.infoObject.fontBackColor = padColors.WHITE;
+  
+  if (pad.Range == padRange.STU5X0)
+  {
+    this.infoObject.fontForeColor = padColors.BLUE;
+    this.infoObject.fontBackColor = padColors.WHITE;
+  }
+  else
+  {
+    this.infoObject.fontForeColor = "";
+    this.infoObject.fontBackColor = "";
+  }
   
   switch (pad.Range)
   {
@@ -324,8 +329,17 @@ function screen_Display2(pad, buttonTextSource)
   this.maleRadio.buttonLabel = "Male";
   this.maleRadio.groupName = "Gender";
   this.maleRadio.buttonChecked = true;
-  this.maleRadio.fontForeColor = padColors.GREEN;
-  this.maleRadio.fontBackColor = padColors.WHITE;
+  
+  if (pad.Range == padRange.STU5X0)
+  {
+    this.maleRadio.fontForeColor = padColors.GREEN;
+    this.maleRadio.fontBackColor = padColors.WHITE;
+  }
+  else
+  {
+    this.maleRadio.fontForeColor = "";
+    this.maleRadio.fontBackColor = "";
+  }
 
   // Now the second radio button - the "Female" option
   this.femaleRadio = new radioObject();
@@ -380,23 +394,19 @@ function screen_Display2(pad, buttonTextSource)
   }
   else
   {
-    print("Calculating rectangle positions from pad height: " + pad.Height);
     this.step1Rectangle.x1Pos = "left";
     this.step1Rectangle.y1Pos = pad.Height/8;
     this.step1Rectangle.x2Pos = "right";
     this.step1Rectangle.y2Pos = pad.Height*4/5;  
     this.step1Rectangle.options = OUTLINE;
-    print("y1Pos: " + this.step1Rectangle.y1Pos);
-    print("y2Pos: " + this.step1Rectangle.y2Pos);
   }
 
   // Set up the Next and Previous button objects using separate functions
   this.nextButton = setupNextButton(pad, buttonTextSource);
-  print ("Setting up cancel/previous button for display 2");
   this.cancelButton = setupPreviousButton(pad, buttonTextSource);
 }
 
-
+// This function sets up the object definitions for the third screen in the wizard sequence
 function screen_Display3(pad, buttonTextSource)
 {
   // Set up the "Step 3 of 3" text message object
@@ -404,11 +414,21 @@ function screen_Display3(pad, buttonTextSource)
   this.stepMsg3.xPos = "right";
   this.stepMsg3.yPos = 2;
   this.stepMsg3.textString = "Step 3 of 3";
+  this.stepMsg3.fontName = pad.Font;
   this.stepMsg3.fontBold = true;
   this.stepMsg3.fontSize = pad.TextSize;
   this.stepMsg3.type = "txt"; 
-  this.stepMsg3.fontForeColor = padColors.BLACK;
-  this.stepMsg3.fontBackColor = padColors.WHITE;
+  
+  if (pad.Range == padRange.STU5X0)
+  {
+    this.stepMsg3.fontForeColor = padColors.BLACK;
+    this.stepMsg3.fontBackColor = padColors.WHITE;
+  }
+  else
+  {
+    this.stepMsg3.fontForeColor = "";
+    this.stepMsg3.fontBackColor = "";
+  }
  
   // Set up the rectangle object for screen aesthetics 
   this.step2Rectangle = new rectangleObject();
@@ -440,13 +460,27 @@ function screen_Display3(pad, buttonTextSource)
   this.pleaseSign.fontSize = pad.TextSize;
   this.pleaseSign.fontName = pad.Font;
   this.pleaseSign.type = "txt"; 
-  this.pleaseSign.fontForeColor = padColors.BLUE;
-  this.pleaseSign.fontBackColor = padColors.WHITE;
+  
+  if (pad.Range == padRange.STU5X0)
+  {
+    this.pleaseSign.fontForeColor = padColors.BLUE;
+    this.pleaseSign.fontBackColor = padColors.WHITE;
+  }
+  else
+  {
+    this.pleaseSign.fontForeColor = "";
+    this.pleaseSign.fontBackColor = "";
+  }
 
+  //print("Setting up XMark on screen display 3 for pad : " + pad.Range);
+  
   // Set up the "X" object for marking where the signature is to be input  
   this.XMark = new textObject();
   this.XMark.textString = "X";
   this.XMark.type = "txt";
+  this.XMark.fontName = pad.Font;
+  this.XMark.fontForeColor = "";
+  this.XMark.fontBackColor = "";
     
   switch (pad.Range)
   {
@@ -482,6 +516,11 @@ function screen_Display3(pad, buttonTextSource)
   this.sigMarkerLine = new textObject();
   this.sigMarkerLine.type = "txt";
   this.sigMarkerLine.fontBold = pad.TextBold;
+  this.sigMarkerLine.fontName = pad.Font;
+  
+  this.sigMarkerLine.fontForeColor = "";
+  this.sigMarkerLine.fontBackColor = "";
+      
   switch (pad.Range)
   {
     case padRange.STU300:
@@ -500,18 +539,18 @@ function screen_Display3(pad, buttonTextSource)
       this.sigMarkerLine.fontSize = 15;  
       this.sigMarkerLine.xPos = 110;
       this.sigMarkerLine.yPos = 250;
-      this.sigMarkerLine.textString = "........................................";
+      this.sigMarkerLine.textString = "..............................";
       break;
     case padRange.STU5X0:
       this.sigMarkerLine.fontSize = 32;  
       this.sigMarkerLine.xPos = 110;
       this.sigMarkerLine.yPos = 250;
-      this.sigMarkerLine.textString = "..................................................";
+      this.sigMarkerLine.textString = "........................................";
+      this.sigMarkerLine.fontForeColor = padColors.GREEN;
+      this.sigMarkerLine.fontBackColor = padColors.WHITE;
       break;
   }
-  this.sigMarkerLine.fontForeColor = padColors.GREEN;
-  this.sigMarkerLine.fontBackColor = padColors.WHITE;
-  
+
   // Set up the signatory object
   this.who = new textObject();
   this.who.textString = "J Smith";
@@ -528,13 +567,15 @@ function screen_Display3(pad, buttonTextSource)
     this.who.yPos = 0.65*pad.Height;
   }
   
-  print("Setting who position for " + pad.Range + " to " + this.who.xPos + " " + this.who.yPos);
-  print ("who yPos = " + this.who.yPos + " from height " + pad.Height);
+  //print("Setting who position for " + pad.Range + " to " + this.who.xPos + " " + this.who.yPos);
+  //print ("who yPos = " + this.who.yPos + " from height " + pad.Height);
 
   // Set up the Reason for signing text object  
   this.why = new textObject();
   this.why.type = "why";
   this.why.textString = "I certify that the information is correct";
+  this.why.fontForeColor = "";
+  this.why.fontBackColor = "";
   
   if (pad.Range == padRange.STU300)
   {
@@ -545,7 +586,7 @@ function screen_Display3(pad, buttonTextSource)
   {
     this.why.xPos = "right";
     this.why.yPos = 0.65*pad.Height + pad.TextLS;
-    if (pad.Range = padRange.STU5X0)
+    if (pad.Range == padRange.STU5X0)
     {
       this.why.fontForeColor = padColors.BLUE;
       this.why.fontBackColor = padColors.WHITE;
@@ -562,25 +603,36 @@ function screen_Display3(pad, buttonTextSource)
   this.okButton.buttonBold = pad.ButtonBold;
   this.okButton.buttonType = "OK";
   this.okButton.buttonText = "OK";
-  this.okButton.fontForeColor = padColors.WHITE;
-  this.okButton.fontBackColor = padColors.PURPLE;
+  
+  if (pad.Range == padRange.STU5X0)
+  {
+    this.okButton.fontForeColor = padColors.WHITE;
+    this.okButton.fontBackColor = padColors.PURPLE;
+  }
+  else
+  {
+    this.okButton.fontForeColor = "";
+    this.okButton.fontBackColor = "";
+  }
 
+  //print("Setting up button contents on screen display 3 for pad : " + pad.Range);
+  
   // Set up the source of the button depending on what the user has selected on the HTML document
-  print("Setting up buttons from source: " + buttonTextSource);
+ //print("Setting up buttons from source: " + buttonTextSource);
   switch (buttonTextSource)  
   {
-    case "UTF8":
+    case textSource.UTF8:
       this.okButton.buttonText = "好";
       break;
       
-    case "LOCAL":
+    case textSource.LOCAL:
       // Override the positions of the buttons when using images
       this.okButton.xPos = "right";
       this.okButton.yPos = "bottom";
       this.okButton.imageFile = setButtonImageFile(buttonTextSource, pad.Range, "Accept");
       break;
       
-    case "REMOTE":
+    case textSource.REMOTE:
       // Override the positions of the buttons when using images
       this.okButton.xPos = "right";
       this.okButton.yPos = "bottom";
@@ -599,21 +651,21 @@ function screen_Display3(pad, buttonTextSource)
   this.clearButton.buttonText = "Clear";
 
   // Set up the source of the button depending on what the user has selected on the HTML document
-  print("Setting up Clear button from source: " + buttonTextSource);
+ //print("Setting up Clear button from source: " + buttonTextSource);
   switch (buttonTextSource)  
   {
-    case "UTF8":
+    case textSource.UTF8:
       this.clearButton.buttonText = "肃清";
       break;
       
-    case "LOCAL":
+    case textSource.LOCAL:
       // Override the positions of the buttons when using images
       this.clearButton.xPos = "centre";
       this.clearButton.yPos = "bottom";
       this.clearButton.imageFile = setButtonImageFile(buttonTextSource, pad.Range, "Clear");
       break;
       
-    case "REMOTE":
+    case textSource.REMOTE:
       // Override the positions of the buttons when using images
       this.clearButton.xPos = "centre";
       this.clearButton.yPos = "bottom";
@@ -622,10 +674,11 @@ function screen_Display3(pad, buttonTextSource)
   } 
 
   // Set up the Cancel button object
-  this.cancelButton = setupCancelButton(pad, buttonTextSource, "CANCEL"); 
+  //print("Setting up cancel button for screen 3");
+  this.cancelButton = setupCancelButton(pad, buttonTextSource, buttonFunction.CANCEL); 
 
   this.signatureFontSize = pad.TextSize;
-  print("Signature font size = " + this.signatureFontSize);
+ //print("Signature font size = " + this.signatureFontSize);
   
   // Finally add 2 objects which are specific to the 300
   if (pad.Range == padRange.STU300)
@@ -649,6 +702,7 @@ function screen_Display3(pad, buttonTextSource)
   }
 }
 
+// Function to set up the properties of the Next button 
 function setupNextButton(pad, buttonTextSource)
 {
   // Set up the Next button object
@@ -660,27 +714,36 @@ function setupNextButton(pad, buttonTextSource)
   this.nextButton.buttonBold = pad.ButtonBold;
   this.nextButton.buttonType = "Next";
   this.nextButton.buttonText = "Next";
-  this.nextButton.fontForeColor = padColors.WHITE;
-  this.nextButton.fontBackColor = padColors.PURPLE;
   
-  print("Setting up buttons for button text source " + buttonTextSource);
+  if (pad.Range == padRange.STU5X0)
+  {
+    this.nextButton.fontForeColor = padColors.WHITE;
+    this.nextButton.fontBackColor = padColors.PURPLE;
+  }
+  else
+  {
+    this.nextButton.fontForeColor = ""
+    this.nextButton.fontBackColor = "";
+  }
+  
+ //print("Setting up buttons for button text source " + buttonTextSource);
   
   // Set up the source of the button depending on what the user has selected on the HTML document
-  print("Setting up buttons from source: " + buttonTextSource);
+ //print("Setting up buttons from source: " + buttonTextSource);
   switch (buttonTextSource)  
   {
-    case "UTF8":
+    case textSource.UTF8:
       this.nextButton.buttonText = "下一個";
       break;
       
-    case "LOCAL":
+    case textSource.LOCAL:
       // Override the positions of the buttons when using images
       this.nextButton.xPos = "right";
       this.nextButton.yPos = "bottom";
       this.nextButton.imageFile = setButtonImageFile(buttonTextSource, pad.Range, "RightArrow");
       break;
       
-    case "REMOTE":
+    case textSource.REMOTE:
       // Override the positions of the buttons when using images
       this.nextButton.xPos = "right";
       this.nextButton.yPos = "bottom";
@@ -691,9 +754,14 @@ function setupNextButton(pad, buttonTextSource)
 }
 
 
-function setupCancelButton(pad, buttonTextSource, buttonFunction)
+// Function to set up the properties of the Cancel button
+function setupCancelButton(pad, buttonTextSource, buttonFunc)
 {
+  var imageFilePrefix;
+  
   // Set up the Cancel button object
+  //print("setupCancelButton " + pad + " " + buttonTextSource + " " + buttonFunc);
+  
   var cancelButton = new buttonObject();  
   cancelButton.xPos = pad.xButtonLeft;
   cancelButton.yPos = pad.yButton;
@@ -702,10 +770,19 @@ function setupCancelButton(pad, buttonTextSource, buttonFunction)
   cancelButton.buttonBold = pad.ButtonBold;
   cancelButton.buttonType = "Cancel";
   cancelButton.buttonText = "Cancel";
-  cancelButton.fontForeColor = padColors.WHITE;
-  cancelButton.fontBackColor = padColors.PURPLE;
   
-  if (buttonFunction == "PREVIOUS")
+  if (pad.Range == padRange.STU5X0)
+  {
+    cancelButton.fontForeColor = padColors.WHITE;
+    cancelButton.fontBackColor = padColors.PURPLE;
+  }
+  else
+  {
+    cancelButton.fontForeColor = "";
+    cancelButton.fontBackColor = "";
+  }
+  
+  if (buttonFunc == buttonFunction.PREVIOUS)
   {
     imageFilePrefix = "LeftArrow";
   }
@@ -713,23 +790,33 @@ function setupCancelButton(pad, buttonTextSource, buttonFunction)
   {
     imageFilePrefix = "Cancel";
   }
+  //print ("imageFilePrefix is " + imageFilePrefix);
+  
+  //print ("textSource.LOCAL: " + textSource.LOCAL );
+  //print ("buttonTextSource: " + buttonTextSource);
   
   // Set up the source of the button depending on what the user has selected on the HTML document
-  print("Setting up buttons from source: " + buttonTextSource);
+  //print("Setting up buttons from source: " + buttonTextSource + " using prefix " + imageFilePrefix);
+  
   switch (buttonTextSource)  
   {
-    case "UTF8":
+    case textSource.UTF8:
+      //print("UTF8");
       cancelButton.buttonText = "取消";
       break;
       
-    case "LOCAL":
+    case textSource.LOCAL:
       // Override the positions of the buttons when using images
+      //print("LOCAL");
       cancelButton.xPos = "left";
       cancelButton.yPos = "bottom";
+      // print("Setting up image file for cancel button using range " + pad.Range + " and prefix " + imageFilePrefix);
       cancelButton.imageFile = setButtonImageFile(buttonTextSource, pad.Range, imageFilePrefix);
+     //print("Cancel button image file is " + cancelButton.imageFile);
       break;
       
-    case "REMOTE":
+    case textSource.REMOTE:
+      //print("REMOTE");
       // Override the positions of the buttons when using images
       cancelButton.xPos = "left";
       cancelButton.yPos = "bottom";
@@ -739,6 +826,7 @@ function setupCancelButton(pad, buttonTextSource, buttonFunction)
   return cancelButton;
 }
 
+// Function to set up the properties of the Previous button (arrow)
 function setupPreviousButton(pad, buttonTextSource)
 {
   // Set up the Previous button object
@@ -750,25 +838,34 @@ function setupPreviousButton(pad, buttonTextSource)
   previousButton.buttonBold = pad.ButtonBold;
   previousButton.buttonType = "Cancel";
   previousButton.buttonText = "Previous";
-  previousButton.fontForeColor = padColors.WHITE;
-  previousButton.fontBackColor = padColors.PURPLE;
+  
+  if (pad.Range == padRange.STU5X0)
+  {
+    previousButton.fontForeColor = padColors.WHITE;
+    previousButton.fontBackColor = padColors.PURPLE;
+  }
+  else
+  {
+    previousButton.fontForeColor = "";
+    previousButton.fontBackColor = "";
+  }
   
   // Set up the source of the button depending on what the user has selected on the HTML document
-  print("Setting up previous button from source: " + buttonTextSource);
+ //print("Setting up previous button from source: " + buttonTextSource);
   switch (buttonTextSource)  
   {
-    case "UTF8":
+    case textSource.UTF8:
       previousButton.buttonText = "取消";
       break;
       
-    case "LOCAL":
+    case textSource.LOCAL:
       // Override the positions of the buttons when using images
       previousButton.xPos = "left";
       previousButton.yPos = "bottom";
       previousButton.imageFile = setButtonImageFile(buttonTextSource, pad.Range, "LeftArrow");
       break;
       
-    case "REMOTE":
+    case textSource.REMOTE:
       // Override the positions of the buttons when using images
       previousButton.xPos = "left";
       previousButton.yPos = "bottom";
@@ -778,7 +875,7 @@ function setupPreviousButton(pad, buttonTextSource)
   return previousButton;
 }
 
-
+// Function to set up the properties of the text which prompts the user to press Next or right arrow to continue
 function setupContinueText(pad, buttonTextSource)
 {
   nextToContinue = new textObject();
@@ -798,17 +895,23 @@ function setupContinueText(pad, buttonTextSource)
   }
   
   // For the colour pads set up the font colours
-  if (pad.Range == padRange.STU5X0);
+  if (pad.Range == padRange.STU5X0)
   {
     nextToContinue.fontForeColor = padColors.BLUE;
     nextToContinue.fontBackColor = padColors.WHITE;
   }
+  else
+  {
+    nextToContinue.fontForeColor = "";
+    nextToContinue.fontBackColor = "";
+  }
+  
   
   /* The text of the "When ready press Next to continue" message varies depending on which pad is in use  
      (there is less space available on the 300) and whether the user has selected images for the    
       Next and Cancel buttons because the images are arrows, not words */
    
-  if (buttonTextSource == "LOCAL" || buttonTextSource == "REMOTE")
+  if (buttonTextSource == textSource.LOCAL || buttonTextSource == textSource.REMOTE)
   {
     nextToContinue.textString = "Press right arrow to continue";
   }   
@@ -826,21 +929,26 @@ function setupContinueText(pad, buttonTextSource)
   return nextToContinue;
 }
 
-function setButtonImageFile(buttonTextSource, padRange, imagePrefix)
+// Function to define the image file which is used for a given button
+function setButtonImageFile(buttonTextSource, currentPadRange, imagePrefix)
 {
   var imageFile;
   var currDir = getCurrentDir();
+ 
+  //print("setButtonImageFile: " + buttonTextSource + " "+ currentPadRange + " " + imagePrefix);
   
-  if (buttonTextSource == "LOCAL")
+  if (buttonTextSource == textSource.LOCAL)
   {
-    filePath = currDir;
+    filePath = currDir + "\\images\\";
   }
   else
   {
-    filePath = "http://gsdt.wacom.eu/support/temp/";
+    filePath = "http://gsdt.wacom.eu/SigCaptX/images/";
   }
+
+  //print("filePath: " + filePath);
   
-  switch (padRange)
+  switch (currentPadRange)
   {
     case padRange.STU300:
       imageFile = filePath + imagePrefix + "300.png";
@@ -855,6 +963,5 @@ function setButtonImageFile(buttonTextSource, padRange, imagePrefix)
       imageFile = filePath + imagePrefix + "530.png";
       break;
   }
-
   return imageFile;
 }

@@ -1,4 +1,4 @@
-<!--
+﻿<!--
 /* ************************************************************************** */
   SigCaptX-WizardCheckbox.html
    
@@ -13,7 +13,7 @@
   Note that the properties for all the wizard control objects displayed on the pad 
   are defined in SigCaptX-WizardCheckbox-PadDefs.js
   
-  Copyright (c) 2017 Wacom Co. Ltd. All rights reserved.
+  Copyright (c) 2018 Wacom Co. Ltd. All rights reserved.
   
    v4.0
   
@@ -21,6 +21,7 @@
 -->
 <!DOCTYPE html>
 <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<html>
 <head>
     <title>SigCaptX-WizardControl</title>
     <script src="wgssSigCaptX.js"></script>
@@ -29,6 +30,7 @@
     <script src="SigCaptX-Wizard-PadDefs.js"></script>
     <script src="SigCaptX-Utils.js"></script>
     <script src="SigCaptX-SessionControl.js"></script>
+    <script src="SigCaptX-Globals.js"></script>
 </head>
   <body onload="wizardEventController.body_onload()">
     <div style="width:100%">
@@ -39,7 +41,7 @@
             <div id="imageBox" class="boxed" style="height:35mm;width:60mm; border:1px solid #d3d3d3;"></div>
           </td>
           <td>
-            <input type="button" id="btnStartStopWizard" value="Start Wizard" style="width:35mm" onClick="wizardEventController.start_stop()" title="Starts/Stops a Wizard Script"/>
+            <input type="button" id="btnStartStopWizard" value="Start Wizard" style="width:35mm" onClick="wizardEventController.start_stop(3)" title="Starts/Stops a Wizard Script"/>
           </td>
         </tr>
       </table>

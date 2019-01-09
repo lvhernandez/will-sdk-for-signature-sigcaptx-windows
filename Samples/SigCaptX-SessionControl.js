@@ -10,8 +10,62 @@
    v4.0
   
 ***************************************************************************/
- 
-function wizardStart(numScreens)
+
+/* wizardEventController is the main event handler for the wizard script */
+var wizardEventController =
+{
+  body_onload : function()
+  {
+    clearTextBox();
+    actionWhenRestarted();
+  },
+  
+  start_stop : function(numScreens)
+  {
+    if( scriptIsRunning ) 
+    {
+      wizardEventController.stop();
+    }
+    else
+    {
+      wizardStart(numScreens);
+    }
+  },
+  
+  stop : function()
+  {
+    if( !scriptIsRunning ) 
+    {
+      print("Script not running");
+    }
+    else
+    {
+      stopScript();
+    }
+  },
+  
+  script_Completed : function(stopScriptNow)
+  {
+    print("Script completed");
+    if (stopScriptNow)
+    {
+      stopScript();
+    }
+    else
+    {
+      showSignature();
+    }
+  },
+  
+  script_Cancelled : function()
+  {
+    print("Script cancelled");
+    wizardEventController.stop();
+  }
+}
+
+// Function called to start off the wizard session
+ function wizardStart(numScreens)
 {
   numScreenDisplays = numScreens;
   
@@ -55,7 +109,7 @@ function wizardStart(numScreens)
     {
       var visible = (true == document.getElementById("chkDisplayWizard").checked);
       print("Enabling licence");
-      wizCtl.PutLicence("<<license>>", onWizCtlPutLicence);
+      wizCtl.PutLicence(LICENCEKEY, onWizCtlPutLicence);
     }
     else
     {
@@ -73,7 +127,7 @@ function wizardStart(numScreens)
   {
     if(callbackStatusOK("WizCtl PutLicence", status) == true)
     {
-      print("License set OK - now checking chkDisplayWizard");
+     //print("License set OK - now checking chkDisplayWizard");
       var visible = (true == document.getElementById("chkDisplayWizard").checked);
       wizCtl.PutVisibleWindow(visible, onPutVisibleWindow);
     }
@@ -131,11 +185,11 @@ function wizardStart(numScreens)
       {
         if (document.getElementById("chkLargeCheckbox").checked)
         {
-          chkBoxSize = "LARGE";
+          chkBoxSize = checkSizeSelection.LARGE;
         }
         else
         {
-          chkBoxSize = "STANDARD";
+          chkBoxSize = checkSizeSelection.STANDARD;
         }
       }
     
@@ -148,28 +202,28 @@ function wizardStart(numScreens)
       {
         if (document.getElementById("utf8").checked)
         {
-          buttonTextSource = "UTF8"
+          buttonTextSource = textSource.UTF8;
         }
         else
         {
           if (document.getElementById("local").checked)
           {
-            buttonTextSource = "LOCAL";
+            buttonTextSource = textSource.LOCAL;
           }
           else
           {
             if (document.getElementById("remote").checked)
             {
-              buttonTextSource = "REMOTE";
+              buttonTextSource = textSource.REMOTE;
             }
             else
             {
-              buttonTextSource = "STANDARD";
+              buttonTextSource = textSource.STANDARD;
             }
           }
         }
       }
-      print("Calling screen1 with button source " + buttonTextSource);
+      //print("Calling screen1 with button source " + buttonTextSource);
       display_1 = new screen_Display1(pad, buttonTextSource);
       if (numScreenDisplays >= 2)
       {
@@ -179,7 +233,7 @@ function wizardStart(numScreens)
       {
         display_3 = new screen_Display3(pad, buttonTextSource);
       }
-      print("Pad type: " + pad.Type);
+     //print("Pad type: " + pad.Type);
       step1();
     }
     else
@@ -199,15 +253,18 @@ function actionWhenRestarted(callback)
   dynCapt = null;
   wizCtl = null;
   pad = null;
+  
   var wizCtlTest = null;
   var imageBox = document.getElementById("imageBox");
+  
   if(null != imageBox.firstChild)
   {
     imageBox.removeChild(imageBox.firstChild);
   }
-  var timeout = setTimeout(timedDetect, 1500);
+  var timeout = setTimeout(timedDetect, TIMEOUT);
+  
   // pass the starting service port  number as configured in the registry
-  wgssSignatureSDK = new WacomGSS_SignatureSDK(onDetectRunning, 8000);
+  wgssSignatureSDK = new WacomGSS_SignatureSDK(onDetectRunning, SERVICEPORT);
 
   function timedDetect() 
   {
@@ -249,7 +306,7 @@ function actionWhenRestarted(callback)
   {
     if(wgssSignatureSDK.ResponseStatus.OK == status)
     {
-      sigCtl.PutLicence("<<license>>", onSigCtlPutLicence);
+      sigCtl.PutLicence(LICENCEKEY, onSigCtlPutLicence);
     }
     else
     {
@@ -330,7 +387,7 @@ function actionWhenRestarted(callback)
     {
       print("DLL: flSigCapt.dll v" + property.text);
       print("Test application ready.");
-      print("Press 'Capture' to capture a signature.");
+      print("Press 'Capture' or 'Start Wizard' to capture a signature.");
       if('function' === typeof callback)
       {
         callback();
@@ -356,7 +413,7 @@ function actionWhenRestarted(callback)
     //We don't check the status for compatibility with older version
     //Older versions gave an error status when closing an idle WizCtl
     print("Test application ready.");
-    print("Press 'Capture' to capture a signature.");
+    print("Press 'Start Wizard' to capture a signature.");
     if('function' === typeof callback)
     {
       callback();
@@ -364,6 +421,7 @@ function actionWhenRestarted(callback)
   }
 }
 
+// Function called to stop the wizard script
 function stopScript()
 {
   scriptIsRunning = false;
