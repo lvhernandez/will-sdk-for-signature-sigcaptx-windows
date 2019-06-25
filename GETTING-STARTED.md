@@ -78,7 +78,7 @@ PortCheck.htm is included to check that the SigCaptX service is available, indep
 
 Having downloaded the samples you will need to install your Signature license in the code:
 
-Search and replace '<<license>>' with the standard license from above.
+Search and replace `<<license>>` with the standard license from above.
 For example change:
 ```
     const LICENCEKEY = "<<license>>";
