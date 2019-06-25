@@ -4,8 +4,9 @@
 
 Samples are included for Windows 7 and above.
 The SigCaptX samples need both the Signature and SigCaptX libraries to be installed.
-To test the samples use a Wacom device such as an STU-500 or a pen/tablet device such as a DTU-1141.
-To use a pen/tablet device its driver will need to be installed separately to include the wintab interface used by the Signature Library.
+To test the samples, use a Wacom device such as an STU-500 or a pen/tablet device such as a DTU-1141.
+
+To use a pen/tablet device you will need to install the Wacom driver which provides the wintab interface used by the Signature Library.
 See the FAQs for device installation:
 https://developer-docs.wacom.com/display/DevDocs/WILL+SDK+-+FAQs
 
@@ -21,20 +22,6 @@ Download the SDK from https://developer.wacom.com/developer-dashboard
 
 The downloaded Zip file contains the SDK with documentation.
 The folders 'SignatureSDK' and 'SigCaptX' are included in the Zip file and contain the MSI and EXE library installers.
-
-## Download an evaluation license
-
-A license is needed to use the Signature Library and a fully functional evaluation license is free to download as follows:
-
-* Navigate to https://developer.wacom.com/developer-dashboard
-* login using your Wacom ID
-* Select **Licenses**
-* Select **New Evaluation License**
-* Select **Generate Evaluation License**  for WILL SDK for signature
-* Return to Licenses where the new license file is ready for download
-* Download the license file
-
-The license is supplied as a JWT text string in a text file. This will need to be copied into your application. The self-service evaluation licenses have a three-month expiry date from the time of creation. However you can generate a new license at any time. 
 
 
 ## Install the SigCaptX Library
@@ -62,6 +49,27 @@ To simplify the installation a combined installer is included:
 Run the installer with default options to install the library in:
 C:\Program Files (x86)\Common Files\WacomGSS
 
+## Signature Library License
+
+A license must be included in your application code to use the Signature Library.
+The licensing scheme has recently been relaxed and the standard license can be used free of charge for all functions excluding:
+- signature encryption
+- ISO signature formatting
+
+### Signature Library Standard License
+
+The Standard Signature Library license is in JSON Web Token (JWT) format and can be copied here:
+
+```
+eyJhbGciOiJSUzUxMiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI3YmM5Y2IxYWIxMGE0NmUxODI2N2E5MTJkYTA2ZTI3NiIsImV4cCI6MjE0NzQ4MzY0NywiaWF0IjoxNTYwOTUwMjcyLCJyaWdodHMiOlsiU0lHX1NES19DT1JFIiwiU0lHQ0FQVFhfQUNDRVNTIl0sImRldmljZXMiOlsiV0FDT01fQU5ZIl0sInR5cGUiOiJwcm9kIiwibGljX25hbWUiOiJTaWduYXR1cmUgU0RLIiwid2Fjb21faWQiOiI3YmM5Y2IxYWIxMGE0NmUxODI2N2E5MTJkYTA2ZTI3NiIsImxpY191aWQiOiJiODUyM2ViYi0xOGI3LTQ3OGEtYTlkZS04NDlmZTIyNmIwMDIiLCJhcHBzX3dpbmRvd3MiOltdLCJhcHBzX2lvcyI6W10sImFwcHNfYW5kcm9pZCI6W10sIm1hY2hpbmVfaWRzIjpbXX0.ONy3iYQ7lC6rQhou7rz4iJT_OJ20087gWz7GtCgYX3uNtKjmnEaNuP3QkjgxOK_vgOrTdwzD-nm-ysiTDs2GcPlOdUPErSp_bcX8kFBZVmGLyJtmeInAW6HuSp2-57ngoGFivTH_l1kkQ1KMvzDKHJbRglsPpd4nVHhx9WkvqczXyogldygvl0LRidyPOsS5H2GYmaPiyIp9In6meqeNQ1n9zkxSHo7B11mp_WXJXl0k1pek7py8XYCedCNW5qnLi4UCNlfTd6Mk9qz31arsiWsesPeR9PN121LBJtiPi023yQU8mgb9piw_a-ccciviJuNsEuRDN3sGnqONG3dMSA
+```
+In the samples, replace the search string <<license>> with the license shown.
+
+To use the excluded functions please contact technical support for suitable sample code and a license:
+[developer relations portal.](https://developer.wacom.com/developer-dashboard/support)
+
+---
+
 ## HTML Samples
 
 The samples demonstrate use of the SigCaptX library.
@@ -70,7 +78,7 @@ PortCheck.htm is included to check that the SigCaptX service is available, indep
 
 Having downloaded the samples you will need to install your Signature license in the code:
 
-Search and replace '<<license>>' with your evaluation license string.
+Search and replace '<<license>>' with the standard license from above.
 For example change:
 ```
     const LICENCEKEY = "<<license>>";
