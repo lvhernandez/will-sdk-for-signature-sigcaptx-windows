@@ -124,8 +124,30 @@ Now you can load the webpage from a browser by visiting https://localhost:7999/d
 
 ----
 
+## ASP.NET Sample
         
+The sample can be found in the ASP-Sample folder.
+The sample works by communicating with SigCaptX on the client device for signature capture and then uploading the completed signature to the server as an FSS file. 
+This means that SigCaptX needs to be installed on the client machine. 
 
+The sample has also been deployed to the Azure account here: http://asp-sigdemo.azurewebsites.net/ 
 
+If you go to this location with a computer that has SigCaptX installed, you can capture a signature and upload it to the server. 
+When the signature has been uploaded you will notice a message in the text box as follows: "uploaded xxxxxxx.txt to the server". 
+If you copy and paste this name as an extension to the URL you can then view the uploaded base64 data on the server. 
+
+For example here is the output from an in-house test:  
+	Session error. Restarting the session.
+	Signature SDK Service detected.
+	DLL: flSigCOM.dll  v3.10.0.0
+	DLL: flSigCapt.dll v3.10.0.0
+	Test application ready.
+	Press 'Start' to capture a signature.
+	Signature captured successfully
+	Sent 4d8839ad-f8e3-399d-cf77-7e174eb5ccc1.txt to server as BASE64 encoded FSS
+To see the saved signature B64 value go to: http://asp-sigdemo.azurewebsites.net/4d8839ad-f8e3-399d-cf77-7e174eb5ccc1.txt. 
+Double-click the captured signature image on the web site to display the signature details.
+
+---
 
 
